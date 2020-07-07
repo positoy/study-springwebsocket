@@ -1,0 +1,6 @@
+<h1>ChatRoom list</h1>
+<table>
+    <tr th:each="room:${rooms}">
+        <td th:text="${room.id}"></td>
+    </tr>
+</table>

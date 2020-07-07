@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chatroom</title>
+    <script src="http://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+</head>
+<body>
+<h1 th:text="${room.id}"></h1>
+<div class-="content">
+    <div class="room-id" th:attr="data-room-id=${room.id}"></div>
+    <div class="member" th:attr="data-member=${member}"></div>
+    <ul class="chat_box">
+
+    </ul>
+    <input name="message">
+    <button class="send">send</button>
+</div>
+<script>
+    $(function(){
+
+        var chatbox = $(".chat_box");
+        var messageInput = $('input[name="message"]');
+        var sendButton = $('.send');
+        var roomId = $('.room-id').data('room-id');
+        var member = $('.member').data('member');
+
+        // handshake
+        var sock = new WebSocket("ws://" + window.location.host + "/ws/chat");
+
+        sock.onopen = function() {
+            console.log('hello');
+
+            sock.send(JSON.stringify({
+                chatRoomId : roomId,
+                type : "JOIN",
+                message : "",
+                writer : member
+            }));
+
+            sock.onmessage = function(e) {
+                var content = JSON.parse(e.data);
+                chatbox.append('<li> (' + content.writer + ') ' + content.message + '</li>');
+            }
+        }
+
+        sendButton.click(function() {
+            var message = messageInput.val();
+            sock.send(JSON.stringify({
+                chatRoomId : roomId,
+                type : "CHAT",
+                message : message,
+                writer : member
+            }));
+            messageInput.val("");
+        });
+    });
+
+</script>
+</body>
+</html>
